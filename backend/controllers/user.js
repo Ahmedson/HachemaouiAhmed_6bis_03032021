@@ -8,6 +8,8 @@ const bcrypt = require('bcrypt');
 // l'authentification d'un utilisateur sur une application Web
 const jwt = require('jsonwebtoken');
 
+require('dotenv').config();
+
 // Importation du modèle "User"
 const User = require('../models/User');
 
@@ -48,7 +50,7 @@ exports.login = (req, res, next) => {
             // avec userID comme payLoad et un String comme signature + durée de validité du token
             token: jwt.sign(
               { userId: user._id },
-              'RANDOM_TOKEN_SECRET',
+              process.env.TOKEN_KEY ,
               { expiresIn: '24h' }
             )
           });
