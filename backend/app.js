@@ -1,11 +1,11 @@
 // Importation du module express
 const express = require('express');
-// body-parser analyse le corps de la requête et le formate pour en faciliter l'exploitation.
-// body-parser extrait la partie entière du corps d'un flux 
-// de demandes entrantes et l'expose sur req.body .
-const bodyParser = require('body-parser');
 
 const mongoose = require('mongoose');
+
+// Helmet aide à protéger l'application de certaines des vulnérabilités 
+// du Web en configurant de manière appropriée des en-têtes HTTP.
+var helmet = require('helmet');
 const path = require('path');
 // Dotenv est un module qui charge des variables d'environnement à partir d'un fichier .env
 require('dotenv').config();
@@ -37,7 +37,13 @@ app.use((req, res, next) => {
     next();
   });
 
-app.use(bodyParser.json());
+// La fonction helmet de niveau supérieur est un wrapper autour
+// de 15 middlewares plus petits, dont 11 sont activés par défaut.
+app.use(helmet());
+
+// express.json() pour analyser le corps de la requête 
+//(body-parser étant inclus dans express à partir de la v4.16)
+app.use(express.json());
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 // Enregistrement du routeur pour les sauces sur le chemin /api/sauces
