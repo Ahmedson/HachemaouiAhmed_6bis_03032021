@@ -25,11 +25,24 @@ exports.getOneSauce = (req, res, next) => {
 };
 
 exports.modifySauce = (req, res, next) => {
-  const sauceObject = req.file ?
-    {
+  let sauceObject = {};
+  // Si la modification contient une image 
+  // => Utilisation de l'opérateur ternaire comme structure conditionnelle.
+  req.file ? (
+    Sauce.findOne({ _id: req.params.id })
+      .then((sauce) => {
+        // On supprime l'ancienne image du serveur
+        const filename = sauce.imageUrl.split('/images/')[1]
+        // fs.unlinkSync(path) Suppression synchrone sans callback
+        fs.unlinkSync(`images/${filename}`)
+      }),
+    // On modifie les données et on ajoute la nouvelle image
+    sauceObject = {
       ...JSON.parse(req.body.sauce),
       imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    } : { ...req.body };
+      // Sinon on modifie les données sans ajouter d'image
+    }) : sauceObject = { ...req.body };
+    // On met à jour notre document 
   Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
     .then(() => res.status(200).json({ message: "Objet modifié." }))
     .catch(error => res.status(400).json(error));
@@ -39,6 +52,7 @@ exports.deleteSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then(sauce => {
       const filename = sauce.imageUrl.split('/images')[1];
+      // fs.unlink(path, callback)
       fs.unlink(`images/${filename}`, () => {
         Sauce.deleteOne({ _id: req.params.id })
           .then(() => res.status(200).json({ message: "Objet supprimé" }))
