@@ -12,8 +12,8 @@ module.exports = (req, res, next) => {
     const userId = decodedToken.userId;
     // Si il y a un userId dans la requête et qu'il ne correspond pas à celui de notre token renvoyer erreur
     if (req.body.userId && req.body.userId !== userId) {
-      throw 'Invalid user ID';
-    // Sinon passer au middleware suivant
+      res.status(403).json({ error: 'unauthorized request' });
+      // Sinon passer au middleware suivant
     } else {
       next();
     }
